@@ -82,7 +82,7 @@ class GitLab
 
       let projects = firstPage;
       if (totalPages > 1) {
-        projects = projects.concat(await Promise.all(promises));        
+        projects = projects.concat(...(await Promise.all(promises)));        
       } 
       
       return projects;
