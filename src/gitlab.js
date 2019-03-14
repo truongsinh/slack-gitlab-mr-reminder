@@ -1,16 +1,17 @@
 var request = require('request-promise-native');
 
-class GitLab
-{
+class GitLab {
   constructor(external_url, access_token, group) {
     this.external_url = external_url;
     this.access_token = access_token;
     this.group = group;
   }
 
-  _getProjectMergeRequest(project_id,{page=1}) {
+  _getProjectMergeRequest(project_id, { page = 1 }) {
     const options = {
-      uri: `${this.external_url}/api/v4/projects/${project_id}/merge_requests?state=opened&page=${page}`,
+      uri: `${
+        this.external_url
+      }/api/v4/projects/${project_id}/merge_requests?state=opened&page=${page}`,
       headers: {
         'PRIVATE-TOKEN': this.access_token
       },
@@ -20,80 +21,78 @@ class GitLab
   }
   async getProjectMergeRequests(project_id) {
     const options = {
-      uri: `${this.external_url}/api/v4/projects/${project_id}/merge_requests?state=opened`,
+      uri: `${
+        this.external_url
+      }/api/v4/projects/${project_id}/merge_requests?state=opened`,
       headers: {
-        'PRIVATE-TOKEN': this.access_token,
-
+        'PRIVATE-TOKEN': this.access_token
       },
       json: true,
-      resolveWithFullResponse: true,
+      resolveWithFullResponse: true
     };
-    
+
     try {
-      let promises = []
+      let promises = [];
       const resp = await request(options);
       const firstPage = resp.body;
       const totalPages = Number(resp.headers['x-total-pages']);
-      for(let pageNumber = 2; pageNumber <= totalPages; pageNumber++) {
-        promises.push(this._getProjectMergeRequest(project_id,{ page: pageNumber }));
+      for (let pageNumber = 2; pageNumber <= totalPages; pageNumber++) {
+        promises.push(
+          this._getProjectMergeRequest(project_id, { page: pageNumber })
+        );
       }
 
       let merge_requests = firstPage;
-      
+
       if (totalPages > 1) {
-        merge_requests = merge_requests.concat(await Promise.all(promises)); 
-      } 
+        merge_requests = merge_requests.concat(await Promise.all(promises));
+      }
       return merge_requests;
-    } catch(e) {
+    } catch (e) {
       throw e;
     }
   }
 
   _getProject({ page = 1 }) {
     const options = {
-      uri: `${this.external_url}/api/v4/groups/${this.group}/projects?page=${page}`,
+      uri: `${this.external_url}/api/v4/groups/${
+        this.group
+      }/projects?page=${page}`,
       headers: {
         'PRIVATE-TOKEN': this.access_token
       },
-      json: true
+      json: true,
+      resolveWithFullResponse: true
     };
     return request(options);
   }
 
   async getProjects() {
-    const options = {
-      uri: `${this.external_url}/api/v4/groups/${this.group}/projects`,
-      headers: {
-        'PRIVATE-TOKEN': this.access_token
-      },
-      json: true,
-      resolveWithFullResponse: true,
-    };
     try {
-      let promises = []
-      const resp = await request(options);
+      let promises = [];
+      const resp = await this._getProject({ page: 1 });
       const firstPage = resp.body;
       const totalPages = Number(resp.headers['x-total-pages']);
-      // console.log(resp.headers);
 
-      for(let pageNumber = 2; pageNumber <= totalPages; pageNumber++) {
+      for (let pageNumber = 2; pageNumber <= totalPages; pageNumber++) {
         promises.push(this._getProject({ page: pageNumber }));
       }
 
       let projects = firstPage;
       if (totalPages > 1) {
-        projects = projects.concat(...(await Promise.all(promises)));        
-      } 
-      
+        projects = projects.concat(...(await Promise.all(promises)).map(r=>r.body));
+      }
       return projects;
-    } catch(e) {      
-        throw e;
+    } catch (e) {
+      throw e;
     }
   }
 
   async getGroupMergeRequests() {
     const projects = await this.getProjects();
-    const merge_requests = await Promise.all(projects.map((project) => this.getProjectMergeRequests(project.id)));    
+    const merge_requests = await Promise.all(
+      projects.map(project => this.getProjectMergeRequests(project.id))
+    );
     return [].concat(...merge_requests);
   }
 }
