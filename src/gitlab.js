@@ -7,93 +7,36 @@ class GitLab {
     this.group = group;
   }
 
-  _getProjectMergeRequest(project_id, { page = 1 }) {
+  _getGroupMergeRequests({ page = 1 }) {
     const options = {
-      uri: `${
-        this.external_url
-      }/api/v4/projects/${project_id}/merge_requests?state=opened&page=${page}`,
-      headers: {
-        'PRIVATE-TOKEN': this.access_token
-      },
-      json: true
-    };
-    return request(options);
-  }
-  async getProjectMergeRequests(project_id) {
-    const options = {
-      uri: `${
-        this.external_url
-      }/api/v4/projects/${project_id}/merge_requests?state=opened`,
+      uri: `${this.external_url}/api/v4/groups/${
+        this.group
+      }/merge_requests?state=opened&page=${page}`,
       headers: {
         'PRIVATE-TOKEN': this.access_token
       },
       json: true,
       resolveWithFullResponse: true
     };
+    return request(options);
+  }
 
+  async getGroupMergeRequests() {
     try {
       let promises = [];
-      const resp = await request(options);
+      const resp = await this._getGroupMergeRequests({ page : 1 });
       const firstPage = resp.body;
       const totalPages = Number(resp.headers['x-total-pages']);
       for (let pageNumber = 2; pageNumber <= totalPages; pageNumber++) {
-        promises.push(
-          this._getProjectMergeRequest(project_id, { page: pageNumber })
-        );
+        promises.push(this._getGroupMergeRequests({ page: pageNumber }));
       }
-
-      let merge_requests = firstPage;
-
-      if (totalPages > 1) {
-        merge_requests = merge_requests.concat(await Promise.all(promises));
-      }
+      let merge_requests = firstPage.concat(
+        ...(await Promise.all(promises)).map(r => r.body)
+      );
       return merge_requests;
     } catch (e) {
       throw e;
     }
-  }
-
-  _getProject({ page = 1 }) {
-    const options = {
-      uri: `${this.external_url}/api/v4/groups/${
-        this.group
-      }/projects?page=${page}`,
-      headers: {
-        'PRIVATE-TOKEN': this.access_token
-      },
-      json: true,
-      resolveWithFullResponse: true
-    };
-    return request(options);
-  }
-
-  async getProjects() {
-    try {
-      let promises = [];
-      const resp = await this._getProject({ page: 1 });
-      const firstPage = resp.body;
-      const totalPages = Number(resp.headers['x-total-pages']);
-
-      for (let pageNumber = 2; pageNumber <= totalPages; pageNumber++) {
-        promises.push(this._getProject({ page: pageNumber }));
-      }
-
-      let projects = firstPage;
-      if (totalPages > 1) {
-        projects = projects.concat(...(await Promise.all(promises)).map(r=>r.body));
-      }
-      return projects;
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  async getGroupMergeRequests() {
-    const projects = await this.getProjects();
-    const merge_requests = await Promise.all(
-      projects.map(project => this.getProjectMergeRequests(project.id))
-    );
-    return [].concat(...merge_requests);
   }
 }
 

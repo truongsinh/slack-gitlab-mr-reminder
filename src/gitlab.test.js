@@ -28,73 +28,36 @@ const mock_merge_requests = [
   }
 ];
 
-test('merge requests are retrieved', async () => {
-  const gitlab = new GitLab('https://gitlab.com', 'xxx', 'mygroup');
-  gitlab.getProjects = jest.fn(() => {
-    return new Promise((resolve, reject) => {
-      process.nextTick(() => {
-        resolve([mock_project, mock_project]);
-      });
-    });
-  });
-  gitlab.getProjectMergeRequests = jest.fn(project => {
-    return new Promise((resolve, reject) => {
-      process.nextTick(() => {
-        resolve(mock_merge_requests);
-      });
-    });
-  });
-
-  const result = await gitlab.getGroupMergeRequests();
-  expect(result).toContainEqual(mock_merge_requests[0]);
-  expect(result).toContainEqual(mock_merge_requests[1]);
-  expect(gitlab.getProjects).toHaveBeenCalled();
-  expect(gitlab.getProjectMergeRequests).toHaveBeenCalledWith(1);
-});
-
 test('merge requests are retrieved from multiple page', async () => {
   const gitlab = new GitLab('https://gitlab.com', 'xxx', 'mygroup');
-  gitlab._getProject = jest.fn(({ page }) => {
+  gitlab._getGroupMergeRequests = jest.fn(({ page }) => {
     return new Promise((resolve, reject) => {
       process.nextTick(() => {
         resolve({
           headers: { 'x-total-pages': 3 },
-          body: [mock_project, mock_project]
+          body: mock_merge_requests
         });
       });
     });
   });
 
-  const result = await gitlab.getProjects();
-  expect(result).toEqual([
-    { id: 1, name: 'project1' },
-    { id: 1, name: 'project1' },
-    { id: 1, name: 'project1' },
-    { id: 1, name: 'project1' },
-    { id: 1, name: 'project1' },
-    { id: 1, name: 'project1' }
-  ]);
+  const result = await gitlab.getGroupMergeRequests();
+  expect(result).toEqual(mock_merge_requests.concat(mock_merge_requests).concat(mock_merge_requests));
 });
 
 test('No open merge requests work', async () => {
   const gitlab = new GitLab('https://gitlab.com', 'xxx', 'mygroup');
-  gitlab.getProjects = jest.fn(() => {
+  gitlab._getGroupMergeRequests = jest.fn(({ page }) => {
     return new Promise((resolve, reject) => {
       process.nextTick(() => {
-        resolve([mock_project, mock_project]);
-      });
-    });
-  });
-  gitlab.getProjectMergeRequests = jest.fn(project => {
-    return new Promise((resolve, reject) => {
-      process.nextTick(() => {
-        resolve([]);
+        resolve({
+          headers: { 'x-total-pages': 1 },
+          body: []
+        });
       });
     });
   });
 
   const result = await gitlab.getGroupMergeRequests();
   expect(result).toEqual([]);
-  expect(gitlab.getProjects).toHaveBeenCalled();
-  expect(gitlab.getProjectMergeRequests).toHaveBeenCalledWith(1);
 });
