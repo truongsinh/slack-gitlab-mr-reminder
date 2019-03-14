@@ -30,7 +30,7 @@ class SlackGitlabMRReminder {
         author_name: mr.author.name,
         title: mr.title,
         title_link: mr.web_url,
-        text: mr.description,
+        // text: mr.description,
       };
     });
 

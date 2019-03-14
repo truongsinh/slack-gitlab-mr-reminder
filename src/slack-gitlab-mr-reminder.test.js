@@ -102,42 +102,36 @@ test('merge requests reminder is sent', async () => {
       {
         author_name: 'person',
         color: '#FC6D26',
-        text: 'MR1 description',
         title: 'MR1',
         title_link: 'https://gitlab.com/merge/1'
       },
       {
         author_name: 'person',
         color: '#FC6D26',
-        text: 'MR2 description',
         title: 'MR2',
         title_link: 'https://gitlab.com/merge/2'
       },
       {
         author_name: 'person',
         color: '#FC6D26',
-        text: 'WIP MR with :',
         title: 'WIP: MR3',
         title_link: 'https://gitlab.com/merge/3'
       },
       {
         author_name: 'person',
         color: '#FC6D26',
-        text: 'WIP MR with []',
         title: '[WIP] MR4',
         title_link: 'https://gitlab.com/merge/4'
       },
       {
         author_name: 'person',
         color: '#FC6D26',
-        text: 'WIP MR with : and case-insensitive',
         title: 'wIp: MR5',
         title_link: 'https://gitlab.com/merge/5'
       },
       {
         author_name: 'person',
         color: '#FC6D26',
-        text: 'WIP MR with [] and case-insensitive',
         title: '[wiP] MR6',
         title_link: 'https://gitlab.com/merge/6'
       }
@@ -170,35 +164,30 @@ test('merge requests (normal older than 5 days and all WIP) reminder is sent', a
       {
         author_name: 'person',
         color: '#FC6D26',
-        text: 'MR1 description',
         title: 'MR1',
         title_link: 'https://gitlab.com/merge/1'
       },
       {
         author_name: 'person',
         color: '#FC6D26',
-        text: 'WIP MR with :',
         title: 'WIP: MR3',
         title_link: 'https://gitlab.com/merge/3'
       },
       {
         author_name: 'person',
         color: '#FC6D26',
-        text: 'WIP MR with []',
         title: '[WIP] MR4',
         title_link: 'https://gitlab.com/merge/4'
       },
       {
         author_name: 'person',
         color: '#FC6D26',
-        text: 'WIP MR with : and case-insensitive',
         title: 'wIp: MR5',
         title_link: 'https://gitlab.com/merge/5'
       },
       {
         author_name: 'person',
         color: '#FC6D26',
-        text: 'WIP MR with [] and case-insensitive',
         title: '[wiP] MR6',
         title_link: 'https://gitlab.com/merge/6'
       }
@@ -231,14 +220,12 @@ test('merge requests (all normal and no WIP) reminder is sent', async () => {
       {
         author_name: 'person',
         color: '#FC6D26',
-        text: 'MR1 description',
         title: 'MR1',
         title_link: 'https://gitlab.com/merge/1'
       },
       {
         author_name: 'person',
         color: '#FC6D26',
-        text: 'MR2 description',
         title: 'MR2',
         title_link: 'https://gitlab.com/merge/2'
       }
@@ -272,7 +259,6 @@ test('merge requests (normal older than 5 days and no WIP) reminder is sent', as
       {
         author_name: 'person',
         color: '#FC6D26',
-        text: 'MR1 description',
         title: 'MR1',
         title_link: 'https://gitlab.com/merge/1'
       }

@@ -14,7 +14,7 @@ const mock_merge_requests = [
       name: 'person'
     },
     web_url: 'https://gitlab.com/merge/1',
-    updated_at: new Date().valueOf()
+    updated_at: 1552548304225 // new Date().valueOf()
   },
   {
     id: 2,
@@ -24,7 +24,7 @@ const mock_merge_requests = [
       name: 'person'
     },
     web_url: 'https://gitlab.com/merge/2',
-    updated_at: new Date().valueOf()
+    updated_at: 1552548304225 // new Date().valueOf()
   }
 ];
 
@@ -42,7 +42,56 @@ test('merge requests are retrieved from multiple page', async () => {
   });
 
   const result = await gitlab.getGroupMergeRequests();
-  expect(result).toEqual(mock_merge_requests.concat(mock_merge_requests).concat(mock_merge_requests));
+  expect(result).toEqual([
+    {
+      author: { name: 'person' },
+      description: 'MR1 description',
+      id: 1,
+      title: 'MR1',
+      updated_at: 1552548304225,
+      web_url: 'https://gitlab.com/merge/1'
+    },
+    {
+      author: { name: 'person' },
+      description: 'MR2 description',
+      id: 2,
+      title: 'MR2',
+      updated_at: 1552548304225,
+      web_url: 'https://gitlab.com/merge/2'
+    },
+    {
+      author: { name: 'person' },
+      description: 'MR1 description',
+      id: 1,
+      title: 'MR1',
+      updated_at: 1552548304225,
+      web_url: 'https://gitlab.com/merge/1'
+    },
+    {
+      author: { name: 'person' },
+      description: 'MR2 description',
+      id: 2,
+      title: 'MR2',
+      updated_at: 1552548304225,
+      web_url: 'https://gitlab.com/merge/2'
+    },
+    {
+      author: { name: 'person' },
+      description: 'MR1 description',
+      id: 1,
+      title: 'MR1',
+      updated_at: 1552548304225,
+      web_url: 'https://gitlab.com/merge/1'
+    },
+    {
+      author: { name: 'person' },
+      description: 'MR2 description',
+      id: 2,
+      title: 'MR2',
+      updated_at: 1552548304225,
+      web_url: 'https://gitlab.com/merge/2'
+    }
+  ]);
 });
 
 test('No open merge requests work', async () => {
